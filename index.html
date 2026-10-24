@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>URL Shortener</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 520px; margin: 4rem auto; padding: 0 1rem; }
+    input, button { font-size: 1rem; padding: .7rem; border-radius: 8px; border: 1px solid #ccc; }
+    input { width: 100%; box-sizing: border-box; margin-bottom: .6rem; }
+    button { background: #111; color: #fff; border: 0; cursor: pointer; width: 100%; }
+    #result { margin-top: 1.2rem; word-break: break-all; }
+    .error { color: #c0392b; }
+  </style>
+</head>
+<body>
+  <h1>URL Shortener</h1>
+  <input id="url" type="url" placeholder="https://example.com/very/long/link">
+  <button id="go">Shorten</button>
+  <div id="result"></div>
+
+  <script>
+    const result = document.getElementById("result");
+    document.getElementById("go").addEventListener("click", async () => {
+      const url = document.getElementById("url").value;
+      result.textContent = "";
+      try {
+        const res = await fetch("/api/shorten", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        result.innerHTML = `<a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+      } catch (err) {
+        result.innerHTML = `<span class="error">${err.message}</span>`;
+      }
+    });
+  </script>
+</body>
+</html>
